@@ -1,4 +1,10 @@
 /** @type {import('next').NextConfig} */
-const nextConfig = {}
+const nextConfig = {
+    reactStrictMode: true,
+    swcMinifyMode: true, 
+    experimental: {
+        esmExternals: true,
+    },
+}
 
 module.exports = nextConfig

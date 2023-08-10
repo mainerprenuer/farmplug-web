@@ -1,7 +1,6 @@
-import { createContext, useEffect } from "react";
+import { useReducer, createContext, useEffect } from "react";
 import { useRouter } from 'next/router';
 import axios from 'axios';
-import { createClassifier } from "typescript";
 
 type Props ={
     children: React.ReactNode;
@@ -23,7 +22,7 @@ const initialContext: Context = {
 
 const Context = createContext<Context>(initialContext);
 
-const useReducer = (
+const userReducer = (
     state: Record<string, any>,
     action: { type: string; payload: any}
 ) => {
@@ -45,5 +44,19 @@ switch (action.type) {
         };
     default:
         return state;
+    }
 };
+const Provider = ({ children }: Props) => {
+    const [state, dispatch] = useReducer(userReducer, initialState);
+    const router = useRouter();
+
+    useEffect(() => {
+        dispatch({
+            type: 'LOGIN',
+            payload: localStorage.getItem('_farm_user')
+            ? JSON.parse(localStorage.getItem('_farm_user') || '{}')
+            : null,
+        });
+        return;
+    }, []);
 };

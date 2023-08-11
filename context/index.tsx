@@ -59,4 +59,45 @@ const Provider = ({ children }: Props) => {
         });
         return;
     }, []);
+
+    axios.interceptors.response.use(
+        (response) => {
+            return response;
+        },
+        (error) => {
+            if (error.response.status === 401) {
+                return new Promise((resolve, reject) => {
+                    axios
+                      .put('/api/v1/users/logout')
+                      .then((res) => {
+                        dispatch({
+                            type: 'LOGOUT',
+                            payload: null,
+                        });
+                        localStorage.removeItem('_farm_user');
+                        router.push('/auth');
+                    })
+                      .catch((err) => {
+                        router.push('/login');
+                        reject(err);
+                    });
+              });
+            }
+            return true;
+        }
+    )
+
+    useEffect(() => {
+        const getCSRF_token = async() => {
+            const {data} = await axios.get('api/v1/csrf-token');
+            axios.defaults.headers['X-CSRF-TOKEN'] = data.csrfToken;
+        };
+        getCSRF_token();
+    }, []);
+
+    return (
+        <Context.Provider value={{ state, dispatch }}>{children}</Context.Provider>
+    );
 };
+
+export { Context, Provider };
